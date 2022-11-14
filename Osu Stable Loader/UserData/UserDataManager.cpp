@@ -6,7 +6,7 @@
 
 bool UserDataManager::Initialize(unsigned int timeout)
 {
-    /*unsigned int timer = 0;
+    unsigned int timer = 0;
 
     unsigned char* azukiMagic = new unsigned char[sizeof(LoaderUserData) + sizeof(unsigned int)];
     azukiMagic[0] = 0x61;
@@ -32,12 +32,7 @@ bool UserDataManager::Initialize(unsigned int timeout)
             return false;
     }
 
-    CloseHandle(mtx);*/
-
-    loaderUserData = new LoaderUserData();
-    sprintf(loaderUserData->SessionToken, "%s", "loadertest");
-    sprintf(loaderUserData->ReleaseStream, "%s", "Stable");
-    loaderUserData->CheatID = 0;
+    CloseHandle(mtx);
 
     return true;
 }
