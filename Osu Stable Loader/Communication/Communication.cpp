@@ -1,6 +1,6 @@
 #include "Communication.h"
 
-#include "ThemidaSDK.h";
+#include "ThemidaSDK.h"
 
 #include "../Utilities/Security/xorstr.hpp"
 #include "Packets/PacketType.h"

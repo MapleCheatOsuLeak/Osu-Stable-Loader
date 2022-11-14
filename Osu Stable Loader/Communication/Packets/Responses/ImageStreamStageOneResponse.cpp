@@ -1,7 +1,5 @@
 #include "ImageStreamStageOneResponse.h"
 
-#include <iostream>
-
 #include "json.hpp"
 #include "ThemidaSDK.h"
 
@@ -54,8 +52,6 @@ ImageStreamStageOneResponse ImageStreamStageOneResponse::Deserialize(const std::
 			ImageImport import = ImageImport();
 			import.DescriptorName = jsonImportItem[xorstr_("DescriptorName")];
 			import.FunctionNameOrOrdinal = jsonImportItem[xorstr_("FunctionNameOrOrdinal")];
-
-			std::cout << import.DescriptorName << " " << import.FunctionNameOrOrdinal << std::endl;
 
 			imports.push_back(import);
 		}

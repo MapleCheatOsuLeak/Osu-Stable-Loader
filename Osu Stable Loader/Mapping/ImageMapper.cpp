@@ -1,14 +1,11 @@
 #include "ImageMapper.h"
+
 #include "../Utilities/Memory/MemoryUtilities.h"
 #include "../UserData/UserDataManager.h"
 
 void ImageMapper::Initialize(HANDLE processHandle)
 {
 	ImageMapper::processHandle = processHandle;
-
-	MemoryUtilities::RemoteLoadLibraryA(processHandle, "C:\\MapleStorage\\Cheats\\Mahiru.dll");
-
-	system("pause");
 }
 
 int ImageMapper::AllocateMemoryForImage(int imageSize)
