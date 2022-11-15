@@ -34,6 +34,8 @@ bool UserDataManager::Initialize(unsigned int timeout)
 
     CloseHandle(mtx);
 
+    loaderUserData = reinterpret_cast<LoaderUserData*>(azukiMagic + sizeof(unsigned int));
+
     return true;
 }
 
