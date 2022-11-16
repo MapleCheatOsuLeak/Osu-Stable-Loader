@@ -2,10 +2,15 @@
 
 #include <windows.h>
 
+#include "ThemidaSDK.h"
+
 #include "../Utilities/Security/xorstr.hpp"
 
+#pragma optimize("", off)
 bool UserDataManager::Initialize(unsigned int timeout)
 {
+    VM_SHARK_BLACK_START
+
     unsigned int timer = 0;
 
     unsigned char* azukiMagic = new unsigned char[sizeof(LoaderUserData) + sizeof(unsigned int)];
@@ -36,8 +41,11 @@ bool UserDataManager::Initialize(unsigned int timeout)
 
     loaderUserData = reinterpret_cast<LoaderUserData*>(azukiMagic + sizeof(unsigned int));
 
+    VM_SHARK_BLACK_END
+
     return true;
 }
+#pragma optimize("", on)
 
 std::string UserDataManager::GetSessionToken()
 {
@@ -72,10 +80,15 @@ std::string UserDataManager::GetReleaseStream()
 CheatUserData UserDataManager::CreateCheatUserData()
 {
 	CheatUserData cheatUserData = CheatUserData();
+
+    VM_SHARK_BLACK_START
+
     sprintf(cheatUserData.SessionToken, "%s", GetSessionToken().c_str());
     sprintf(cheatUserData.Username, "%s", GetUsername().c_str());
     sprintf(cheatUserData.DiscordID, "%s", GetDiscordID().c_str());
     sprintf(cheatUserData.DiscordAvatarHash, "%s", GetDiscordAvatarHash().c_str());
+
+    VM_SHARK_BLACK_END
 
     return cheatUserData;
 }

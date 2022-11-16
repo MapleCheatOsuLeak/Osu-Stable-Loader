@@ -1,13 +1,18 @@
 ﻿#include <windows.h>
 
+#include "ThemidaSDK.h"
+
 #include "Communication/Communication.h"
 #include "Utilities/Security/xorstr.hpp"
 #include "UserData/UserDataManager.h"
 #include "Mapping/ImageMapper.h"
 #include "Utilities/Memory/MemoryUtilities.h"
 
+#pragma optimize("", off)
 bool InitializeProcess(unsigned int timeout)
 {
+	VM_FISH_RED_START
+
 	unsigned int timer = 0;
 	DWORD pid = 0;
 	while (pid == 0)
@@ -30,12 +35,21 @@ bool InitializeProcess(unsigned int timeout)
 		timer += 250;
 	}
 
+	VM_FISH_RED_END
+
 	return true;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
+	VM_FISH_RED_START
+
 	MemoryUtilities::AdjustPrivileges();
+
+	int protectionVar = 0x501938CA;
+	CHECK_PROTECTION(protectionVar, 0x9CCC379)
+		if (protectionVar != 0x9CCC379)
+			return 0;
 
     if (!UserDataManager::Initialize(20000))
         return 0;
@@ -51,5 +65,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	ImageMapper::Finish();
 
+	VM_FISH_RED_END
+
     return 0;
 }
+#pragma optimize("", on)

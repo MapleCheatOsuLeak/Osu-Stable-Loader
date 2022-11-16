@@ -1,22 +1,34 @@
 #include "ImageMapper.h"
 
+#include <ThemidaSDK.h>
+
 #include "../Utilities/Memory/MemoryUtilities.h"
 #include "../UserData/UserDataManager.h"
 
 void ImageMapper::Initialize(HANDLE processHandle)
 {
+	VM_SHARK_BLACK_START
+
 	ImageMapper::processHandle = processHandle;
+
+	VM_SHARK_BLACK_END
 }
 
 int ImageMapper::AllocateMemoryForImage(int imageSize)
 {
+	VM_SHARK_BLACK_START
+
 	imageBaseAddress = VirtualAllocEx(processHandle, NULL, imageSize, MEM_COMMIT, PAGE_READONLY);
+
+	VM_SHARK_BLACK_END
 
 	return reinterpret_cast<int>(imageBaseAddress);
 }
 
 std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<ImageImport>& imports)
 {
+	VM_SHARK_BLACK_START
+
 	std::vector<ImageResolvedImport> resolvedImports;
 
 	for (const ImageImport& import : imports)
@@ -29,11 +41,15 @@ std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<I
 		resolvedImports.push_back(resolvedImport);
 	}
 
+	VM_SHARK_BLACK_END
+
 	return resolvedImports;
 }
 
 void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const std::vector<int>& callbacks)
 {
+	VM_SHARK_BLACK_START
+
 	for (ImageSection section : imageSections)
 	{
 		DWORD oldProtect;
@@ -61,9 +77,15 @@ void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const
 			MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
 
 	}
+
+	VM_SHARK_BLACK_END
 }
 
 void ImageMapper::Finish()
 {
+	VM_SHARK_BLACK_START
+
 	CloseHandle(processHandle);
+
+	VM_SHARK_BLACK_END
 }
