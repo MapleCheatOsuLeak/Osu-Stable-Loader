@@ -5,6 +5,7 @@
 #include "../Utilities/Memory/MemoryUtilities.h"
 #include "../UserData/UserDataManager.h"
 
+#pragma optimize("", off)
 void ImageMapper::Initialize(HANDLE processHandle)
 {
 	VM_SHARK_BLACK_START
@@ -89,3 +90,4 @@ void ImageMapper::Finish()
 
 	VM_SHARK_BLACK_END
 }
+#pragma optimize("", on)

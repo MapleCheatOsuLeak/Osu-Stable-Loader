@@ -16,6 +16,7 @@
 #include "Packets/Requests/ImageStreamStageTwoRequest.h"
 #include "Packets/Responses/ImageStreamStageTwoResponse.h"
 
+#pragma optimize("", off)
 void Communication::onReceive(const std::vector<unsigned char>& data)
 {
 	VM_SHARK_BLACK_START
@@ -179,3 +180,4 @@ bool Communication::GetIsConnected()
 {
 	return isConnected;
 }
+#pragma optimize("", on)
