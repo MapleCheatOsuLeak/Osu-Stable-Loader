@@ -19,7 +19,7 @@ int ImageMapper::AllocateMemoryForImage(int imageSize)
 {
 	VM_SHARK_BLACK_START
 
-	imageBaseAddress = VirtualAllocEx(processHandle, NULL, imageSize, MEM_COMMIT, PAGE_READONLY);
+	imageBaseAddress = VirtualAllocEx(processHandle, NULL, imageSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
 	VM_SHARK_BLACK_END
 
@@ -53,14 +53,10 @@ void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const
 
 	for (ImageSection section : imageSections)
 	{
-		DWORD oldProtect;
-		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.Data.size(), PAGE_EXECUTE_READWRITE, &oldProtect);
-
 		WriteProcessMemory(processHandle, reinterpret_cast<LPVOID>(section.Address), section.Data.data(), section.Data.size(), NULL);
 
-		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.Data.size(), oldProtect, &oldProtect);
-
-		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.AlignedSize, section.Protection, &oldProtect);
+		DWORD oldProtect;
+		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.ProtectionSize, section.Protection, &oldProtect);
 	}
 
 	for (int callbackOffset : callbacks)

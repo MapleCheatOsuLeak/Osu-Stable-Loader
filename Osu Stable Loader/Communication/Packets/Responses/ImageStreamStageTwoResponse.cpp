@@ -51,8 +51,8 @@ ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::
 			ImageSection section = ImageSection();
 			section.Address = static_cast<int>(jsonSectionItem[xorstr_("Address")]);
 			section.Data = CryptoProvider::GetInstance()->Base64Decode(jsonSectionItem[xorstr_("Data")]);
-			section.AlignedSize = static_cast<int>(jsonSectionItem[xorstr_("AlignedSize")]);
 			section.Protection = static_cast<int>(jsonSectionItem[xorstr_("Protection")]);
+			section.ProtectionSize = static_cast<int>(jsonSectionItem[xorstr_("ProtectionSize")]);
 
 			sections.push_back(section);
 		}

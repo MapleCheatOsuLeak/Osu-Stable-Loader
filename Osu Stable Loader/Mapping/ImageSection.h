@@ -6,6 +6,6 @@ struct ImageSection
 {
 	int Address;
 	std::vector<unsigned char> Data;
-	int AlignedSize;
 	int Protection;
+	int ProtectionSize;
 };
