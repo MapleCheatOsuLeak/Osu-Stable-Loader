@@ -30,6 +30,7 @@ const std::vector<ImageSection>& ImageStreamStageTwoResponse::GetSections()
 	return sections;
 }
 
+#pragma optimize("", off)
 ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::vector<unsigned char>& payload)
 {
 	VM_SHARK_BLACK_START
@@ -67,3 +68,4 @@ ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::
 
 	return response;
 }
+#pragma optimize("", on)

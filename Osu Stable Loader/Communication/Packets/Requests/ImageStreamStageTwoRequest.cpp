@@ -16,6 +16,7 @@ ImageStreamStageTwoRequest::ImageStreamStageTwoRequest(const std::string& sessio
 	this->resolvedImports = resolvedImports;
 }
 
+#pragma optimize("", off)
 std::vector<unsigned char> ImageStreamStageTwoRequest::Serialize()
 {
 	VM_SHARK_BLACK_START
@@ -52,3 +53,4 @@ std::vector<unsigned char> ImageStreamStageTwoRequest::Serialize()
 
 	return packet;
 }
+#pragma optimize("", on)

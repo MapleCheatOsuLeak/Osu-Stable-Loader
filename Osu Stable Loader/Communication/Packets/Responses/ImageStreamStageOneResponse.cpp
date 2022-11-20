@@ -29,6 +29,7 @@ const std::vector<ImageImport>& ImageStreamStageOneResponse::GetImports()
 	return imports;
 }
 
+#pragma optimize("", off)
 ImageStreamStageOneResponse ImageStreamStageOneResponse::Deserialize(const std::vector<unsigned char>& payload)
 {
 	VM_SHARK_BLACK_START
@@ -64,3 +65,4 @@ ImageStreamStageOneResponse ImageStreamStageOneResponse::Deserialize(const std::
 
 	return response;
 }
+#pragma optimize("", on)

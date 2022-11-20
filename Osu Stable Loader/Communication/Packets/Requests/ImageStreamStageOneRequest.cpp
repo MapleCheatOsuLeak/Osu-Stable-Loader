@@ -15,6 +15,7 @@ ImageStreamStageOneRequest::ImageStreamStageOneRequest(const std::string& sessio
 	this->releaseStream = releaseStream;
 }
 
+#pragma optimize("", off)
 std::vector<unsigned char> ImageStreamStageOneRequest::Serialize()
 {
 	VM_SHARK_BLACK_START
@@ -37,3 +38,4 @@ std::vector<unsigned char> ImageStreamStageOneRequest::Serialize()
 
 	return packet;
 }
+#pragma optimize("", on)
