@@ -59,7 +59,7 @@ void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const
 		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.ProtectionSize, section.Protection, &oldProtect);
 	}
 
-	for (int callbackOffset : callbacks)
+	for (auto& callbackOffset : callbacks)
 	{
 		if (&callbackOffset == &callbacks.back())
 		{
@@ -72,7 +72,6 @@ void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const
 		}
 		else
 			MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
-
 	}
 
 	VM_SHARK_BLACK_END
