@@ -29,7 +29,11 @@ bool InitializeProcess(unsigned int timeout)
 			if (!processHandle || !MemoryUtilities::GetRemoteModuleHandleA(processHandle, xorstr_("osu!auth.dll")))
 				pid = 0;
 			else
+			{
 				ImageMapper::Initialize(processHandle);
+
+				Sleep(5000);
+			}
 		}
 		
 		timer += 250;
