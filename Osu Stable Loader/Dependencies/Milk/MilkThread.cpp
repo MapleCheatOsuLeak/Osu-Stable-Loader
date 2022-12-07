@@ -32,12 +32,12 @@ void MilkThread::prepareCodeCave()
 {
 	VM_LION_BLACK_START
 	DWORD oldProtection;
-	VirtualProtect(_codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
+	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
 	const uintptr_t jumpLocation = _function - 5 - reinterpret_cast<uintptr_t>(_codeCaveLocation);
 	unsigned char jmp[1] { 0xE9 };
 	WriteProcessMemory(_processHandle, _codeCaveLocation, jmp, sizeof jmp, nullptr);
 	WriteProcessMemory(_processHandle, _codeCaveLocation + 1, &jumpLocation, sizeof uintptr_t, nullptr);
-	VirtualProtect(_codeCaveLocation, 5, oldProtection, &oldProtection);
+	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = true;
 	VM_LION_BLACK_END
@@ -47,10 +47,10 @@ void MilkThread::cleanCodeCave()
 {
 	VM_LION_BLACK_START
 	DWORD oldProtection;
-	VirtualProtect(_codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
+	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
 	unsigned char alignment[5] { 0xCC,0xCC,0xCC,0xCC,0xCC };
 	WriteProcessMemory(_processHandle, _codeCaveLocation, &alignment, sizeof alignment, nullptr);
-	VirtualProtect(_codeCaveLocation, 5, oldProtection, &oldProtection);
+	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = false;
 	VM_LION_BLACK_END

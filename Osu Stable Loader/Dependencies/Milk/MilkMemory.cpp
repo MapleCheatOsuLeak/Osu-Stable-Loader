@@ -27,7 +27,7 @@ void MilkMemory::cacheMemoryRegions()
 
 	MEMORY_BASIC_INFORMATION32 mbi{};
 	LPVOID address = nullptr;
-	while (VirtualQuery(address, reinterpret_cast<PMEMORY_BASIC_INFORMATION>(&mbi), sizeof mbi) != 0)
+	while (VirtualQueryEx(_processHandle, address, reinterpret_cast<PMEMORY_BASIC_INFORMATION>(&mbi), sizeof mbi) != 0)
 	{
 		if (mbi.Protect >= PAGE_READONLY && mbi.Protect <= PAGE_EXECUTE_WRITECOPY)
 			_memoryRegions.emplace_back(mbi);
