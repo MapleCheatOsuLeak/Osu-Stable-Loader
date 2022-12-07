@@ -79,6 +79,7 @@ int MemoryUtilities::CallRemoteFunction(HANDLE processHandle, int functionAddres
         return 0;
 
     WaitForSingleObject(spawnedThread, INFINITE);
+    mt.CleanCodeCave();
 	
     int result;
     ReadProcessMemory(processHandle, resultPointer, &result, sizeof(int), NULL);
