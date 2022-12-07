@@ -331,6 +331,8 @@
     <ClCompile Include="Dependencies\CryptoPP\zdeflate.cpp" />
     <ClCompile Include="Dependencies\CryptoPP\zinflate.cpp" />
     <ClCompile Include="Dependencies\CryptoPP\zlib.cpp" />
+    <ClCompile Include="Dependencies\Milk\MilkMemory.cpp" />
+    <ClCompile Include="Dependencies\Milk\MilkThread.cpp" />
     <ClCompile Include="Mapping\ImageMapper.cpp" />
     <ClCompile Include="Osu Stable Loader.cpp" />
     <ClCompile Include="UserData\UserDataManager.cpp" />
@@ -542,6 +544,9 @@
     <ClInclude Include="Dependencies\CryptoPP\zinflate.h" />
     <ClInclude Include="Dependencies\CryptoPP\zlib.h" />
     <ClInclude Include="Dependencies\JSON\json.hpp" />
+    <ClInclude Include="Dependencies\Milk\MilkMemory.h" />
+    <ClInclude Include="Dependencies\Milk\MilkThread.h" />
+    <ClInclude Include="Dependencies\Milk\Structs\MemoryRegion.h" />
     <ClInclude Include="Dependencies\ThemidaSDK\SecureEngineCustomVMs.h" />
     <ClInclude Include="Dependencies\ThemidaSDK\SecureEngineCustomVMs_BorlandC_inline.h" />
     <ClInclude Include="Dependencies\ThemidaSDK\SecureEngineCustomVMs_GNU_inline.h" />

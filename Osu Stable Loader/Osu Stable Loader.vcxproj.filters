@@ -590,6 +590,12 @@
     <ClCompile Include="Utilities\Memory\MemoryUtilities.cpp">
       <Filter>Utilities\Memory</Filter>
     </ClCompile>
+    <ClCompile Include="Dependencies\Milk\MilkMemory.cpp">
+      <Filter>Dependencies\Milk</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\Milk\MilkThread.cpp">
+      <Filter>Dependencies\Milk</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">
@@ -639,6 +645,12 @@
     </Filter>
     <Filter Include="Utilities\Memory">
       <UniqueIdentifier>{bdd30543-a1e1-4e5f-8985-f0f5abff30e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\Milk">
+      <UniqueIdentifier>{d3e730fc-a66d-468f-9846-a1abbe0f54b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\Milk\Structs">
+      <UniqueIdentifier>{eda85ef4-10aa-4682-976f-e8ec86fab87b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1304,6 +1316,15 @@
     </ClInclude>
     <ClInclude Include="Mapping\ImageSection.h">
       <Filter>Mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Milk\MilkMemory.h">
+      <Filter>Dependencies\Milk</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Milk\MilkThread.h">
+      <Filter>Dependencies\Milk</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Milk\Structs\MemoryRegion.h">
+      <Filter>Dependencies\Milk\Structs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

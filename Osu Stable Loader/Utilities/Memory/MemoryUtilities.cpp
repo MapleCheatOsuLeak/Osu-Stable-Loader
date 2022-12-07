@@ -4,6 +4,7 @@
 #include <TlHelp32.h>
 
 #include "../Security/xorstr.hpp"
+#include "../../Dependencies/Milk/MilkThread.h"
 
 std::vector<char> MemoryUtilities::IntToByteArray(int value)
 {
@@ -71,7 +72,12 @@ int MemoryUtilities::CallRemoteFunction(HANDLE processHandle, int functionAddres
         return 0;
     }
 
-    HANDLE spawnedThread = CreateRemoteThread(processHandle, nullptr, 0, static_cast<LPTHREAD_START_ROUTINE>(shellcodeAddress), nullptr, 0, 0);
+    MilkThread mt = MilkThread(reinterpret_cast<uintptr_t>(shellcodeAddress), processHandle, true);
+    HANDLE spawnedThread = mt.Start();
+
+    if (spawnedThread == nullptr)
+        return 0;
+
     WaitForSingleObject(spawnedThread, INFINITE);
 	
     int result;
