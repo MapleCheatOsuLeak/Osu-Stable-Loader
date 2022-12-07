@@ -8,10 +8,11 @@ class MilkMemory {
 	uint32_t CODE_CAVE_MINIMUM_SIZE = 0x0A;
 	uint32_t CODE_CAVE_MINIMUM_REGIONSIZE = 0x2000;
 	std::vector<MemoryRegion> _memoryRegions;
+	HANDLE _processHandle;
 
 	void cacheMemoryRegions();
 public:
-	MilkMemory();
+	MilkMemory(HANDLE processHandle);
 	~MilkMemory();
 
 	std::vector<uint8_t> ReadMemory(uint32_t startAddress, SIZE_T size);

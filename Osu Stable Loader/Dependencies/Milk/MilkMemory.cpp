@@ -3,9 +3,10 @@
 #include <ThemidaSDK.h>
 #pragma optimize("", off)
 
-MilkMemory::MilkMemory()
+MilkMemory::MilkMemory(HANDLE processHandle)
 {
 	VM_FISH_RED_START
+	_processHandle = processHandle;
 	_memoryRegions = std::vector<MemoryRegion>();
 	cacheMemoryRegions();
 	VM_FISH_RED_END
@@ -40,11 +41,11 @@ std::vector<uint8_t> MilkMemory::ReadMemory(uint32_t startAddress, SIZE_T size)
 {
 	VM_LION_BLACK_START
 	auto buffer = std::vector<uint8_t>(size);
-	for(SIZE_T i = 0; i < size; i++)
-	{
-		const auto address = reinterpret_cast<uint8_t*>(startAddress + i);
-		buffer[i] = *address;
-	}
+	const auto address = reinterpret_cast<uint8_t*>(startAddress);
+	SIZE_T readBytes;
+	ReadProcessMemory(_processHandle, address, buffer.data(), size, &readBytes);
+	if (readBytes == NULL)
+		return { };
 
 	return buffer;
 	VM_LION_BLACK_END

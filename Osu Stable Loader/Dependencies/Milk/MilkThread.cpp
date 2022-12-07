@@ -6,11 +6,10 @@
 
 #pragma optimize("", off)
 
-MilkThread::MilkThread(uintptr_t function, HANDLE processHandle, bool lazy)
+MilkThread::MilkThread(uintptr_t function, HANDLE processHandle, bool lazy) : _milkMemory(processHandle)
 {
 	VM_FISH_RED_START
-	_milkMemory = MilkMemory();
-	_function = function;
+		_function = function;
 	_processHandle = processHandle;
 
 	_codeCaveLocation = _milkMemory.FindCodeCave();
@@ -34,9 +33,10 @@ void MilkThread::prepareCodeCave()
 	VM_LION_BLACK_START
 	DWORD oldProtection;
 	VirtualProtect(_codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
-	*reinterpret_cast<uint8_t*>(_codeCaveLocation) = 0xE9; // rel jmp
 	const uintptr_t jumpLocation = _function - 5 - reinterpret_cast<uintptr_t>(_codeCaveLocation);
-	*reinterpret_cast<uint32_t*>((reinterpret_cast<uintptr_t>(_codeCaveLocation) + 1)) = jumpLocation;
+	unsigned char jmp[1] { 0xE9 };
+	WriteProcessMemory(_processHandle, _codeCaveLocation, jmp, sizeof jmp, nullptr);
+	WriteProcessMemory(_processHandle, _codeCaveLocation + 1, &jumpLocation, sizeof uintptr_t, nullptr);
 	VirtualProtect(_codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = true;
@@ -48,8 +48,8 @@ void MilkThread::cleanCodeCave()
 	VM_LION_BLACK_START
 	DWORD oldProtection;
 	VirtualProtect(_codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
-	*reinterpret_cast<uint8_t*>(_codeCaveLocation) = 0xCC;
-	*(_codeCaveLocation + 1) = 0xCCCCCCCC;
+	unsigned char alignment[5] { 0xCC,0xCC,0xCC,0xCC,0xCC };
+	WriteProcessMemory(_processHandle, _codeCaveLocation, &alignment, sizeof alignment, nullptr);
 	VirtualProtect(_codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = false;
