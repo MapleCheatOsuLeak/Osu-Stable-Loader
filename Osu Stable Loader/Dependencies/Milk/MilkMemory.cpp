@@ -9,6 +9,9 @@ MilkMemory::MilkMemory(HANDLE processHandle)
 	_processHandle = processHandle;
 	_memoryRegions = std::vector<MemoryRegion>();
 	cacheMemoryRegions();
+
+	CODE_CAVE_SEARCH_OFFSET = reinterpret_cast<uint32_t>(GetModuleHandleA("kernel32.dll"));
+
 	VM_FISH_RED_END
 }
 
