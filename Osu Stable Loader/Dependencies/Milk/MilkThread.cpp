@@ -36,7 +36,7 @@ void MilkThread::prepareCodeCave()
 	const uintptr_t jumpLocation = _function - 5 - reinterpret_cast<uintptr_t>(_codeCaveLocation);
 	unsigned char jmp[1] { 0xE9 };
 	WriteProcessMemory(_processHandle, _codeCaveLocation, jmp, sizeof jmp, nullptr);
-	WriteProcessMemory(_processHandle, _codeCaveLocation + 1, &jumpLocation, sizeof uintptr_t, nullptr);
+	WriteProcessMemory(_processHandle, reinterpret_cast<LPVOID>(reinterpret_cast<uintptr_t>(_codeCaveLocation) + 1), &jumpLocation, sizeof uintptr_t, nullptr);
 	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = true;
