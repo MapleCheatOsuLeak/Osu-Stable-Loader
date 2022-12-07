@@ -43,7 +43,7 @@ void MilkThread::prepareCodeCave()
 	VM_LION_BLACK_END
 }
 
-void MilkThread::cleanCodeCave()
+void MilkThread::CleanCodeCave()
 {
 	VM_LION_BLACK_START
 	DWORD oldProtection;
@@ -75,6 +75,6 @@ void MilkThread::SetFunctionPointer(uintptr_t function)
 {
 	VM_LION_BLACK_START
 	_function = function;
-	cleanCodeCave();
+	CleanCodeCave();
 	VM_LION_BLACK_END
 }
