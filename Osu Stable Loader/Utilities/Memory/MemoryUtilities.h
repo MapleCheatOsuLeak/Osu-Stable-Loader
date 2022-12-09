@@ -7,10 +7,13 @@
 #include <windows.h>
 
 #include <vector>
+#include "../../Dependencies/Milk/MilkThread.h"
 
 class MemoryUtilities
 {
 public:
+    static inline MilkThread* MilkThread = nullptr;
+
 	static __forceinline void AdjustPrivileges()
 	{
         HANDLE token;
