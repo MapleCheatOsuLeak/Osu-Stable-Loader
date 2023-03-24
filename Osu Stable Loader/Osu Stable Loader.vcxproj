@@ -338,6 +338,8 @@
     <ClCompile Include="UserData\UserDataManager.cpp" />
     <ClCompile Include="Utilities\Memory\MemoryUtilities.cpp" />
     <ClCompile Include="Utilities\Strings\StringUtilities.cpp" />
+    <ClCompile Include="Utilities\Windows\PdbUtilities.cpp" />
+    <ClCompile Include="Utilities\Windows\WindowsUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Communication\Communication.h" />
@@ -564,6 +566,8 @@
     <ClInclude Include="Utilities\Memory\MemoryUtilities.h" />
     <ClInclude Include="Utilities\Security\xorstr.hpp" />
     <ClInclude Include="Utilities\Strings\StringUtilities.h" />
+    <ClInclude Include="Utilities\Windows\PdbUtilities.h" />
+    <ClInclude Include="Utilities\Windows\WindowsUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\CryptoPP\aes_armv4.S" />

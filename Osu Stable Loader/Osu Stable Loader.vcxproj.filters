@@ -596,6 +596,12 @@
     <ClCompile Include="Dependencies\Milk\MilkThread.cpp">
       <Filter>Dependencies\Milk</Filter>
     </ClCompile>
+    <ClCompile Include="Utilities\Windows\WindowsUtilities.cpp">
+      <Filter>Utilities\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Windows\PdbUtilities.cpp">
+      <Filter>Utilities\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">
@@ -651,6 +657,9 @@
     </Filter>
     <Filter Include="Dependencies\Milk\Structs">
       <UniqueIdentifier>{eda85ef4-10aa-4682-976f-e8ec86fab87b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities\Windows">
+      <UniqueIdentifier>{3c081480-f761-4797-8ee4-4ca58e0db3eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1325,6 +1334,12 @@
     </ClInclude>
     <ClInclude Include="Dependencies\Milk\Structs\MemoryRegion.h">
       <Filter>Dependencies\Milk\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Windows\WindowsUtilities.h">
+      <Filter>Utilities\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Windows\PdbUtilities.h">
+      <Filter>Utilities\Windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
