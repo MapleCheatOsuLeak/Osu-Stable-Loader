@@ -16,6 +16,9 @@
 #include "Packets/Requests/ImageStreamStageTwoRequest.h"
 #include "Packets/Responses/ImageStreamStageTwoResponse.h"
 
+#include "../Utilities/Windows/WindowsUtilities.h"
+#include "../Utilities/Windows/PdbUtilities.h"
+
 #pragma optimize("", off)
 void Communication::onReceive(const std::vector<unsigned char>& data)
 {
@@ -55,7 +58,9 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 
 			CryptoProvider::GetInstance()->InitializeAES(handshakeResponse.GetKey(), handshakeResponse.GetIV());
 
-			ImageStreamStageOneRequest imageStreamStageOneRequest = ImageStreamStageOneRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), UserDataManager::GetReleaseStream());
+			const PdbInformation ntdllPdbInformation = PdbUtilities::GetPdbInformation(WindowsUtilities::GetNtdllPath(), WindowsUtilities::Is64BitOS());
+
+			ImageStreamStageOneRequest imageStreamStageOneRequest = ImageStreamStageOneRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), UserDataManager::GetReleaseStream(), ntdllPdbInformation);
 			tcpClient.Send(imageStreamStageOneRequest.Serialize());
 
 			STR_ENCRYPT_END
