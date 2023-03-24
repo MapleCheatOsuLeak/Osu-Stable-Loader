@@ -52,7 +52,7 @@ PdbInformation PdbUtilities::GetPdbInformation(std::string modulePath, bool is32
 
 	PdbInformation pdbInformation = PdbInformation();
 
-	for (auto imgDbgDirectory = (IMAGE_DEBUG_DIRECTORY*)(moduleMemory.get() + debugDirectory); imgDbgDirectory->SizeOfData; imgDbgDirectory++)
+	for (auto imgDbgDirectory = reinterpret_cast<IMAGE_DEBUG_DIRECTORY*>(moduleMemory.get() + debugDirectory); imgDbgDirectory->SizeOfData; imgDbgDirectory++)
 	{
 		if (imgDbgDirectory->Type != IMAGE_DEBUG_TYPE_CODEVIEW)
 			continue;
@@ -65,7 +65,7 @@ PdbInformation PdbUtilities::GetPdbInformation(std::string modulePath, bool is32
 			char PdbFileName[ANYSIZE_ARRAY];
 		};
 
-		const auto codeviewInfo = (codeviewInfo_t*)(buffer.data() + imgDbgDirectory->PointerToRawData);
+		const auto codeviewInfo = reinterpret_cast<codeviewInfo_t*>(buffer.data() + imgDbgDirectory->PointerToRawData);
 
 		std::string pdbFileName(codeviewInfo->PdbFileName);
 
