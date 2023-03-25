@@ -58,9 +58,7 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 
 			CryptoProvider::GetInstance()->InitializeAES(handshakeResponse.GetKey(), handshakeResponse.GetIV());
 
-			const PdbInformation ntdllPdbInformation = PdbUtilities::GetPdbInformation(WindowsUtilities::GetNtdllPath(), WindowsUtilities::Is64BitOS());
-
-			ImageStreamStageOneRequest imageStreamStageOneRequest = ImageStreamStageOneRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), UserDataManager::GetReleaseStream(), ntdllPdbInformation);
+			ImageStreamStageOneRequest imageStreamStageOneRequest = ImageStreamStageOneRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), UserDataManager::GetReleaseStream());
 			tcpClient.Send(imageStreamStageOneRequest.Serialize());
 
 			STR_ENCRYPT_END
@@ -81,10 +79,12 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 				return;
 			}
 
+			const PdbInformation ntdllPdbInformation = PdbUtilities::GetPdbInformation(WindowsUtilities::GetNtdllPath(), WindowsUtilities::Is64BitOS());
+
 			int imageBaseAddress = ImageMapper::AllocateMemoryForImage(imageStreamStageOneResponse.GetImageSize());
 			std::vector<ImageResolvedImport> resolvedImports = ImageMapper::ResolveImports(imageStreamStageOneResponse.GetImports());
 
-			ImageStreamStageTwoRequest imageStreamStageTwoRequest = ImageStreamStageTwoRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), imageBaseAddress, resolvedImports);
+			ImageStreamStageTwoRequest imageStreamStageTwoRequest = ImageStreamStageTwoRequest(UserDataManager::GetSessionToken(), UserDataManager::GetCheatID(), imageBaseAddress, ntdllPdbInformation, resolvedImports);
 			tcpClient.Send(imageStreamStageTwoRequest.Serialize());
 
 			STR_ENCRYPT_END
@@ -115,6 +115,9 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 
 				return;
 			}
+			
+			int ldrpHandleTlsDataOffset = imageStreamStageTwoResponse.GetLdrpHandleTlsDataOffset();
+			int entryPointOffset = imageStreamStageTwoResponse.GetEntryPointOffset();
 
 			std::vector<ImageSection> sections = imageStreamStageTwoResponse.GetSections();
 			if (behavior == 2)
@@ -123,12 +126,16 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 						if (i % 5 == 0) // corrupt each 5th byte
 							section.Data[i] = section.Data[i] ^ (section.Data[i - 1] ^ section.Data[i] ^ xorByteRNG(gen));
 
-			std::vector<int> callbacks = imageStreamStageTwoResponse.GetCallbacks();
+			std::vector<int> tlsCallbacks = imageStreamStageTwoResponse.GetTLSCallbacks();
 			if (behavior == 3)
-				for (int& callback : callbacks)
-					callback = callback ^ xorIntRNG(gen);
+			{
+				entryPointOffset = entryPointOffset ^ xorIntRNG(gen);
 
-			ImageMapper::MapImage(sections, callbacks);
+				for (int& callback : tlsCallbacks)
+					callback = callback ^ xorIntRNG(gen);
+			}
+
+			ImageMapper::MapImage(ldrpHandleTlsDataOffset, entryPointOffset, sections, tlsCallbacks);
 
 			Disconnect();
 

@@ -47,9 +47,11 @@ std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<I
 	return resolvedImports;
 }
 
-void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const std::vector<int>& callbacks)
+void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<ImageSection>& imageSections, const std::vector<int>& tlsCallbacks)
 {
 	VM_SHARK_BLACK_START
+
+	// mapping sections
 
 	for (ImageSection section : imageSections)
 	{
@@ -59,20 +61,21 @@ void ImageMapper::MapImage(const std::vector<ImageSection>& imageSections, const
 		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.ProtectionSize, section.Protection, &oldProtect);
 	}
 
-	for (auto& callbackOffset : callbacks)
-	{
-		if (&callbackOffset == &callbacks.back())
-		{
-			CheatUserData userData = UserDataManager::CreateCheatUserData();
+	// todo: fix static tls
 
-			LPVOID userDataAddress = VirtualAllocEx(processHandle, NULL, sizeof(CheatUserData), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-			WriteProcessMemory(processHandle, userDataAddress, &userData, sizeof(CheatUserData), NULL);
+	// calling tls callbacks
 
-			MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, reinterpret_cast<int>(userDataAddress) });
-		}
-		else
-			MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
-	}
+	for (auto& callbackOffset : tlsCallbacks)
+		MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
+
+	// calling entry point
+
+	CheatUserData userData = UserDataManager::CreateCheatUserData();
+
+	LPVOID userDataAddress = VirtualAllocEx(processHandle, NULL, sizeof(CheatUserData), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	WriteProcessMemory(processHandle, userDataAddress, &userData, sizeof(CheatUserData), NULL);
+
+	MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + entryPointOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, reinterpret_cast<int>(userDataAddress) });
 
 	VM_SHARK_BLACK_END
 }

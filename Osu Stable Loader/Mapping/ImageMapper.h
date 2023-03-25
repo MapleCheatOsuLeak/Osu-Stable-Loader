@@ -19,6 +19,6 @@ public:
 	static void Initialize(HANDLE processHandle);
 	static int AllocateMemoryForImage(int imageSize);
 	static std::vector<ImageResolvedImport> ResolveImports(const std::vector<ImageImport>& imports);
-	static void MapImage(const std::vector<ImageSection>& imageSections, const std::vector<int>& callbacks);
+	static void MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<ImageSection>& imageSections, const std::vector<int>& tlsCallbacks);
 	static void Finish();
 };

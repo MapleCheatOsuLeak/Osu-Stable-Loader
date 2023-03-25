@@ -8,11 +8,13 @@
 #include "../../../Utilities/Security/xorstr.hpp"
 #include "../../../Mapping/ImageSection.h"
 
-ImageStreamStageTwoResponse::ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, const std::vector<int>& callbacks, const std::vector<ImageSection>& sections)
+ImageStreamStageTwoResponse::ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<ImageSection>& sections, const std::vector<int>& tlsCallbacks)
 {
 	this->result = result;
-	this->callbacks = callbacks;
+	this->ldrpHandleTlsDataOffset = ldrpHandleTlsDataOffset;
+	this->entryPointOffset = entryPointOffset;
 	this->sections = sections;
+	this->tlsCallbacks = tlsCallbacks;
 }
 
 ImageStreamStageTwoResult ImageStreamStageTwoResponse::GetResult()
@@ -20,14 +22,24 @@ ImageStreamStageTwoResult ImageStreamStageTwoResponse::GetResult()
 	return result;
 }
 
-const std::vector<int>& ImageStreamStageTwoResponse::GetCallbacks()
+int ImageStreamStageTwoResponse::GetLdrpHandleTlsDataOffset()
 {
-	return callbacks;
+	return ldrpHandleTlsDataOffset;
+}
+
+int ImageStreamStageTwoResponse::GetEntryPointOffset()
+{
+	return entryPointOffset;
 }
 
 const std::vector<ImageSection>& ImageStreamStageTwoResponse::GetSections()
 {
 	return sections;
+}
+
+const std::vector<int>& ImageStreamStageTwoResponse::GetTLSCallbacks()
+{
+	return tlsCallbacks;
 }
 
 #pragma optimize("", off)
@@ -40,10 +52,13 @@ ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::
 
 	ImageStreamStageTwoResult result = jsonPayload[xorstr_("Result")];
 
-	ImageStreamStageTwoResponse response = ImageStreamStageTwoResponse(result, {}, {});
+	ImageStreamStageTwoResponse response = ImageStreamStageTwoResponse(result, 0, 0, {}, {});
 
 	if (result == ImageStreamStageTwoResult::Success)
 	{
+		int ldrpHandleTlsDataOffset = jsonPayload[xorstr_("LdrpHandleTlsDataOffset")];
+		int entryPointOffset = jsonPayload[xorstr_("EntryPointOffset")];
+
 		std::vector<ImageSection> sections = {};
 		for (auto& jsonSection : jsonPayload[xorstr_("Sections")].items())
 		{
@@ -58,9 +73,9 @@ ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::
 			sections.push_back(section);
 		}
 
-		std::vector<int> callbacks = jsonPayload[xorstr_("Callbacks")].get<std::vector<int>>();
+		std::vector<int> tlsCallbacks = jsonPayload[xorstr_("TLSCallbacks")].get<std::vector<int>>();
 
-		response = ImageStreamStageTwoResponse(result, callbacks, sections);
+		response = ImageStreamStageTwoResponse(result, ldrpHandleTlsDataOffset, entryPointOffset, sections, tlsCallbacks);
 	}
 
 	STR_ENCRYPT_END

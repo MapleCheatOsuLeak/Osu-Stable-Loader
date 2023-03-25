@@ -15,14 +15,18 @@ enum class ImageStreamStageTwoResult
 class ImageStreamStageTwoResponse
 {
 	ImageStreamStageTwoResult result;
-	std::vector<int> callbacks;
+	int ldrpHandleTlsDataOffset;
+	int entryPointOffset;
 	std::vector<ImageSection> sections;
+	std::vector<int> tlsCallbacks;
 
-	ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, const std::vector<int>& callbacks, const std::vector<ImageSection>& Sections);
+	ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<ImageSection>& sections, const std::vector<int>& tlsCallbacks);
 public:
 	ImageStreamStageTwoResult GetResult();
-	const std::vector<int>& GetCallbacks();
+	int GetLdrpHandleTlsDataOffset();
+	int GetEntryPointOffset();
 	const std::vector<ImageSection>& GetSections();
+	const std::vector<int>& GetTLSCallbacks();
 
 	static ImageStreamStageTwoResponse Deserialize(const std::vector<unsigned char>& payload);
 };

@@ -2,15 +2,13 @@
 
 #include <vector>
 #include <string>
-#include "../../../Utilities/Windows/PdbUtilities.h"
 
 class ImageStreamStageOneRequest
 {
 	std::string sessionToken;
 	unsigned int cheatID;
 	std::string releaseStream;
-	PdbInformation pdbInformation;
 public:
-	ImageStreamStageOneRequest(const std::string& sessionToken, unsigned int cheatID, const std::string& releaseStream, const PdbInformation pdbInformation);
+	ImageStreamStageOneRequest(const std::string& sessionToken, unsigned int cheatID, const std::string& releaseStream);
 	std::vector<unsigned char> Serialize();
 };
