@@ -1,11 +1,56 @@
 #include "ImageMapper.h"
 
+#include <iostream>
+#include <winternl.h>
 #include <ThemidaSDK.h>
 
 #include "../Utilities/Memory/MemoryUtilities.h"
 #include "../UserData/UserDataManager.h"
 
 #pragma optimize("", off)
+void ImageMapper::mapSections(const std::vector<ImageSection>& imageSections)
+{
+	for (ImageSection section : imageSections)
+	{
+		WriteProcessMemory(processHandle, reinterpret_cast<LPVOID>(section.Address), section.Data.data(), section.Data.size(), NULL);
+
+		DWORD oldProtect;
+		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.ProtectionSize, section.Protection, &oldProtect);
+	}
+}
+
+void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
+{
+	int ldrpHandleTlsData = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpHandleTlsDataOffset;
+
+	_LDR_DATA_TABLE_ENTRY dataTableEntry = {};
+	dataTableEntry.DllBase = imageBaseAddress;
+
+	LPVOID dataTableEntryAddress = VirtualAllocEx(processHandle, NULL, sizeof(_LDR_DATA_TABLE_ENTRY), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	WriteProcessMemory(processHandle, dataTableEntryAddress, &dataTableEntry, sizeof(_LDR_DATA_TABLE_ENTRY), NULL);
+
+	MemoryUtilities::CallRemoteFunctionThiscall(processHandle, ldrpHandleTlsData, (int)dataTableEntryAddress, {});
+
+}
+
+void ImageMapper::callInitializationRoutines(int entryPointOffset, const std::vector<int>& tlsCallbacks)
+{
+	// calling tls callbacks
+	
+	for (auto& callbackOffset : tlsCallbacks)
+		MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
+
+	// calling entry point
+
+	CheatUserData userData = UserDataManager::CreateCheatUserData();
+
+	LPVOID userDataAddress = VirtualAllocEx(processHandle, NULL, sizeof(CheatUserData), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	WriteProcessMemory(processHandle, userDataAddress, &userData, sizeof(CheatUserData), NULL);
+
+	MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + entryPointOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, reinterpret_cast<int>(userDataAddress) });
+
+}
+
 void ImageMapper::Initialize(HANDLE processHandle)
 {
 	VM_SHARK_BLACK_START
@@ -51,31 +96,9 @@ void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, co
 {
 	VM_SHARK_BLACK_START
 
-	// mapping sections
-
-	for (ImageSection section : imageSections)
-	{
-		WriteProcessMemory(processHandle, reinterpret_cast<LPVOID>(section.Address), section.Data.data(), section.Data.size(), NULL);
-
-		DWORD oldProtect;
-		VirtualProtectEx(processHandle, reinterpret_cast<LPVOID>(section.Address), section.ProtectionSize, section.Protection, &oldProtect);
-	}
-
-	// todo: fix static tls
-
-	// calling tls callbacks
-
-	for (auto& callbackOffset : tlsCallbacks)
-		MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + callbackOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, 0 });
-
-	// calling entry point
-
-	CheatUserData userData = UserDataManager::CreateCheatUserData();
-
-	LPVOID userDataAddress = VirtualAllocEx(processHandle, NULL, sizeof(CheatUserData), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	WriteProcessMemory(processHandle, userDataAddress, &userData, sizeof(CheatUserData), NULL);
-
-	MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + entryPointOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, reinterpret_cast<int>(userDataAddress) });
+	mapSections(imageSections);
+	fixStaticTLS(ldrpHandleTlsDataOffset);
+	callInitializationRoutines(entryPointOffset, tlsCallbacks);
 
 	VM_SHARK_BLACK_END
 }

@@ -15,6 +15,10 @@ class ImageMapper
 {
 	static inline HANDLE processHandle;
 	static inline void* imageBaseAddress;
+
+	static void mapSections(const std::vector<ImageSection>& imageSections);
+	static void fixStaticTLS(int ldrpHandleTlsDataOffset);
+	static void callInitializationRoutines(int entryPointOffset, const std::vector<int>& tlsCallbacks);
 public:
 	static void Initialize(HANDLE processHandle);
 	static int AllocateMemoryForImage(int imageSize);

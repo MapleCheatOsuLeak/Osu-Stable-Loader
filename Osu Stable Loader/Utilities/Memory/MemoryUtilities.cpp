@@ -91,6 +91,91 @@ int MemoryUtilities::CallRemoteFunction(HANDLE processHandle, int functionAddres
     return result;
 }
 
+int MemoryUtilities::CallRemoteFunctionThiscall(HANDLE processHandle, int functionAddress, int instance, std::vector<int> arguments)
+{
+    std::vector<char> shellcode;
+	
+    // move instance to ecx (mov ecx, instance)
+    shellcode.push_back(0xB9);
+    std::vector<char> bytes = IntToByteArray(instance);
+    shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+
+    // push arguments (push arg)
+    for (int i = arguments.size() - 1; i >= 0; i--)
+    {
+        if (arguments[i] >= -128 && arguments[i] <= 127)
+        {
+            // push byte
+            shellcode.push_back(0x6A);
+            shellcode.push_back(static_cast<char>(arguments[i]));
+        }
+        else
+        {
+			// push dword
+            shellcode.push_back(0x68);
+            std::vector<char> bytes = IntToByteArray(arguments[i]);
+            shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+        }
+    }
+
+    // move function address to eax (mov eax, functionAddress)
+    std::vector<char> functionAddressBytes = IntToByteArray(functionAddress);
+    shellcode.push_back(0xB8);
+    shellcode.insert(shellcode.end(), functionAddressBytes.begin(), functionAddressBytes.end());
+
+    // call function (call eax)
+    shellcode.push_back(0xFF);
+    shellcode.push_back(0xD0);
+
+    // mov [resultPointer], eax
+    LPVOID resultPointer = VirtualAllocEx(processHandle, NULL, sizeof(int), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (!resultPointer)
+        return 0;
+
+	// move eax to resultPointer (mov [resultPointer], eax)
+    std::vector<char> resultPointerBytes = IntToByteArray(reinterpret_cast<int>(resultPointer));
+    shellcode.push_back(0xA3);
+    shellcode.insert(shellcode.end(), resultPointerBytes.begin(), resultPointerBytes.end());
+
+	// clear eax (xor eax, eax)
+    shellcode.push_back(0x31);
+    shellcode.push_back(0xC0);
+
+    // return (ret)
+    shellcode.push_back(0xC3);
+
+    LPVOID shellcodeAddress = VirtualAllocEx(processHandle, NULL, shellcode.size(), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READ);
+    if (!shellcodeAddress)
+        return 0;
+
+    if (!WriteProcessMemory(processHandle, shellcodeAddress, shellcode.data(), shellcode.size(), NULL))
+    {
+        VirtualFreeEx(processHandle, resultPointer, sizeof(int), MEM_RELEASE);
+        VirtualFreeEx(processHandle, shellcodeAddress, shellcode.size(), MEM_RELEASE);
+
+        return 0;
+    }
+
+    if (MilkThread == nullptr)
+        MilkThread = new ::MilkThread(reinterpret_cast<uintptr_t>(shellcodeAddress), processHandle, true);
+
+    MilkThread->SetFunctionPointer(reinterpret_cast<uintptr_t>(shellcodeAddress));
+    HANDLE spawnedThread = MilkThread->Start();
+
+    if (spawnedThread == nullptr)
+        return 0;
+
+    WaitForSingleObject(spawnedThread, INFINITE);
+
+    int result;
+    ReadProcessMemory(processHandle, resultPointer, &result, sizeof(int), NULL);
+
+    VirtualFreeEx(processHandle, resultPointer, sizeof(int), MEM_RELEASE);
+    VirtualFreeEx(processHandle, shellcodeAddress, shellcode.size(), MEM_RELEASE);
+
+    return result;
+}
+
 DWORD MemoryUtilities::GetProcessIDByName(const char* processName)
 {
     PROCESSENTRY32 processInfo;
