@@ -23,7 +23,8 @@ void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 {
 	int ldrpHandleTlsData = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpHandleTlsDataOffset;
 
-	_LDR_DATA_TABLE_ENTRY dataTableEntry = {};
+	LDR_DATA_TABLE_ENTRY dataTableEntry;
+	memset(&dataTableEntry, 0, sizeof(dataTableEntry));
 	dataTableEntry.DllBase = imageBaseAddress;
 
 	LPVOID dataTableEntryAddress = VirtualAllocEx(processHandle, NULL, sizeof(_LDR_DATA_TABLE_ENTRY), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
