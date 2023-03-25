@@ -4,9 +4,9 @@
 #include <vector>
 
 class MilkMemory {
-	uint32_t CODE_CAVE_SEARCH_OFFSET = 0x71000000;
+	uint32_t CODE_CAVE_SEARCH_OFFSET = 0x6BCDEFFF;
 	uint32_t CODE_CAVE_MINIMUM_SIZE = 0x0A;
-	uint32_t CODE_CAVE_MINIMUM_REGIONSIZE = 0x2000;
+	uint32_t CODE_CAVE_MINIMUM_REGIONSIZE = 0x100;
 	std::vector<MemoryRegion> _memoryRegions;
 	HANDLE _processHandle;
 
