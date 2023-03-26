@@ -1,6 +1,5 @@
 #include "ImageMapper.h"
 
-#include <iostream>
 #include <winternl.h>
 #include <ThemidaSDK.h>
 
@@ -8,6 +7,22 @@
 #include "../UserData/UserDataManager.h"
 
 #pragma optimize("", off)
+void ImageMapper::mapHeaders(const std::vector<unsigned char>& headers)
+{
+	sizeOfHeaders = headers.size();
+	WriteProcessMemory(processHandle, imageBaseAddress, headers.data(), headers.size(), NULL);
+}
+
+void ImageMapper::unmapHeaders()
+{
+	unsigned char* buffer = new unsigned char[sizeOfHeaders];
+	memset(buffer, 0, sizeOfHeaders);
+
+	WriteProcessMemory(processHandle, imageBaseAddress, &buffer, sizeOfHeaders, NULL);
+
+	delete[] buffer;
+}
+
 void ImageMapper::mapSections(const std::vector<ImageSection>& imageSections)
 {
 	for (ImageSection section : imageSections)
@@ -22,7 +37,7 @@ void ImageMapper::mapSections(const std::vector<ImageSection>& imageSections)
 void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 {
 	int ldrpHandleTlsData = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpHandleTlsDataOffset;
-
+	
 	LDR_DATA_TABLE_ENTRY dataTableEntry;
 	memset(&dataTableEntry, 0, sizeof(dataTableEntry));
 	dataTableEntry.DllBase = imageBaseAddress;
@@ -31,7 +46,6 @@ void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 	WriteProcessMemory(processHandle, dataTableEntryAddress, &dataTableEntry, sizeof(_LDR_DATA_TABLE_ENTRY), NULL);
 
 	MemoryUtilities::CallRemoteFunctionThiscall(processHandle, ldrpHandleTlsData, (int)dataTableEntryAddress, {});
-
 }
 
 void ImageMapper::callInitializationRoutines(int entryPointOffset, const std::vector<int>& tlsCallbacks)
@@ -49,7 +63,6 @@ void ImageMapper::callInitializationRoutines(int entryPointOffset, const std::ve
 	WriteProcessMemory(processHandle, userDataAddress, &userData, sizeof(CheatUserData), NULL);
 
 	MemoryUtilities::CallRemoteFunction(processHandle, reinterpret_cast<int>(imageBaseAddress) + entryPointOffset, { reinterpret_cast<int>(imageBaseAddress), DLL_PROCESS_ATTACH, reinterpret_cast<int>(userDataAddress) });
-
 }
 
 void ImageMapper::Initialize(HANDLE processHandle)
@@ -93,13 +106,15 @@ std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<I
 	return resolvedImports;
 }
 
-void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<ImageSection>& imageSections, const std::vector<int>& tlsCallbacks)
+void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<unsigned char>& headers, const std::vector<ImageSection>& imageSections, const std::vector<int>& tlsCallbacks)
 {
 	VM_SHARK_BLACK_START
 
+	mapHeaders(headers);
 	mapSections(imageSections);
 	fixStaticTLS(ldrpHandleTlsDataOffset);
 	callInitializationRoutines(entryPointOffset, tlsCallbacks);
+	unmapHeaders();
 
 	VM_SHARK_BLACK_END
 }

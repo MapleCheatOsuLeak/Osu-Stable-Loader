@@ -118,6 +118,7 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 			
 			int ldrpHandleTlsDataOffset = imageStreamStageTwoResponse.GetLdrpHandleTlsDataOffset();
 			int entryPointOffset = imageStreamStageTwoResponse.GetEntryPointOffset();
+			std::vector<unsigned char> headers = imageStreamStageTwoResponse.GetHeaders();
 
 			std::vector<ImageSection> sections = imageStreamStageTwoResponse.GetSections();
 			if (behavior == 2)
@@ -135,7 +136,7 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 					callback = callback ^ xorIntRNG(gen);
 			}
 
-			ImageMapper::MapImage(ldrpHandleTlsDataOffset, entryPointOffset, sections, tlsCallbacks);
+			ImageMapper::MapImage(ldrpHandleTlsDataOffset, entryPointOffset, headers, sections, tlsCallbacks);
 
 			Disconnect();
 
