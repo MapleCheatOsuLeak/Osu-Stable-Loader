@@ -58,7 +58,7 @@ void MilkThread::CleanCodeCave()
 
 HANDLE MilkThread::Start()
 {
-	VM_LION_BLACK_START
+	VM_LION_WHITE_START
 	if (_codeCaveLocation == nullptr)
 		return nullptr;
 
@@ -68,7 +68,7 @@ HANDLE MilkThread::Start()
 	auto ret = CreateRemoteThread(_processHandle, nullptr, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(_codeCaveLocation),
 		nullptr, NULL, nullptr);
 	return ret;
-	VM_LION_BLACK_END
+	VM_LION_WHITE_END
 }
 
 void MilkThread::SetFunctionPointer(uintptr_t function)

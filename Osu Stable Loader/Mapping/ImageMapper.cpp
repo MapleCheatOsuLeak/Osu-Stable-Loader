@@ -87,7 +87,7 @@ int ImageMapper::AllocateMemoryForImage(int imageSize)
 
 std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<ImageImport>& imports)
 {
-	VM_SHARK_BLACK_START
+	VM_TIGER_WHITE_START
 
 	std::vector<ImageResolvedImport> resolvedImports;
 
@@ -101,14 +101,14 @@ std::vector<ImageResolvedImport> ImageMapper::ResolveImports(const std::vector<I
 		resolvedImports.push_back(resolvedImport);
 	}
 
-	VM_SHARK_BLACK_END
+	VM_TIGER_WHITE_END
 
 	return resolvedImports;
 }
 
 void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<unsigned char>& headers, const std::vector<ImageSection>& imageSections, const std::vector<int>& tlsCallbacks)
 {
-	VM_SHARK_BLACK_START
+	VM_FISH_RED_START
 
 	mapHeaders(headers);
 	mapSections(imageSections);
@@ -116,7 +116,7 @@ void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int entryPointOffset, co
 	callInitializationRoutines(entryPointOffset, tlsCallbacks);
 	unmapHeaders();
 
-	VM_SHARK_BLACK_END
+	VM_FISH_RED_END
 }
 
 void ImageMapper::Finish()
