@@ -30,7 +30,7 @@ void MilkMemory::cacheMemoryRegions()
 
 	MEMORY_BASIC_INFORMATION32 mbi{};
 	LPVOID address = nullptr;
-	bool currentRegionCFG = false;
+	bool currentRegionInvalid = false;
 	while (VirtualQueryEx(_processHandle, address, reinterpret_cast<PMEMORY_BASIC_INFORMATION>(&mbi), sizeof mbi) != 0)
 	{
 		address = reinterpret_cast<LPVOID>(mbi.BaseAddress + mbi.RegionSize);
@@ -56,17 +56,19 @@ void MilkMemory::cacheMemoryRegions()
 			PIMAGE_NT_HEADERS ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(buffer.data() + dosHeader->e_lfanew);
 
 			// The current region has CFG enabled and therefore should not be checked for code caves.
-			if (ntHeaders->OptionalHeader.DllCharacteristics & IMAGE_DLLCHARACTERISTICS_GUARD_CF)
-				currentRegionCFG = true;
+			// We also check if the region is part of a COM module, if it is we also skip that
+			if (ntHeaders->OptionalHeader.DllCharacteristics & IMAGE_DLLCHARACTERISTICS_GUARD_CF ||
+				ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].VirtualAddress != NULL)
+				currentRegionInvalid = true;
 
 			buffer.clear();
 		}
 
-		if (currentRegionCFG)
+		if (currentRegionInvalid)
 		{
 			// If we've found empty space within loaded modules, reset status.
 			if (mbi.State == MEM_FREE && mbi.Protect == PAGE_NOACCESS)
-				currentRegionCFG = false;
+				currentRegionInvalid = false;
 		}
 		else
 			if (mbi.Protect >= PAGE_READONLY && mbi.Protect <= PAGE_EXECUTE_WRITECOPY)
