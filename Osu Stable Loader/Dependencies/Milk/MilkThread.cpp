@@ -30,7 +30,7 @@ MilkThread::~MilkThread()
 
 void MilkThread::prepareCodeCave()
 {
-	VM_LION_BLACK_START
+	VM_FISH_WHITE_START
 	DWORD oldProtection;
 	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
 	const uintptr_t jumpLocation = _function - 5 - reinterpret_cast<uintptr_t>(_codeCaveLocation);
@@ -40,12 +40,12 @@ void MilkThread::prepareCodeCave()
 	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = true;
-	VM_LION_BLACK_END
+	VM_FISH_WHITE_END
 }
 
 void MilkThread::CleanCodeCave()
 {
-	VM_LION_BLACK_START
+	VM_FISH_WHITE_START
 	DWORD oldProtection;
 	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, PAGE_EXECUTE_READWRITE, &oldProtection);
 	unsigned char alignment[5] { 0xCC,0xCC,0xCC,0xCC,0xCC };
@@ -53,7 +53,7 @@ void MilkThread::CleanCodeCave()
 	VirtualProtectEx(_processHandle, _codeCaveLocation, 5, oldProtection, &oldProtection);
 
 	_codeCavePrepared = false;
-	VM_LION_BLACK_END
+	VM_FISH_WHITE_END
 }
 
 HANDLE MilkThread::Start()
@@ -73,8 +73,8 @@ HANDLE MilkThread::Start()
 
 void MilkThread::SetFunctionPointer(uintptr_t function)
 {
-	VM_LION_BLACK_START
+	VM_FISH_WHITE_START
 	_function = function;
 	CleanCodeCave();
-	VM_LION_BLACK_END
+	VM_FISH_WHITE_END
 }
