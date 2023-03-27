@@ -18,7 +18,7 @@ ImageStreamStageOneRequest::ImageStreamStageOneRequest(const std::string& sessio
 #pragma optimize("", off)
 std::vector<unsigned char> ImageStreamStageOneRequest::Serialize()
 {
-	VM_SHARK_BLACK_START
+	VM_TIGER_WHITE_START
 	STR_ENCRYPT_START
 
 	nlohmann::json jsonPayload;
@@ -34,7 +34,7 @@ std::vector<unsigned char> ImageStreamStageOneRequest::Serialize()
 	packet.insert(packet.end(), payload.begin(), payload.end());
 
 	STR_ENCRYPT_END
-	VM_SHARK_BLACK_END
+		VM_TIGER_WHITE_END
 
 	return packet;
 }

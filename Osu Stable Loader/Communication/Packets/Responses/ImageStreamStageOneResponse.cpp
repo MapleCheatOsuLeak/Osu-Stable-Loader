@@ -32,7 +32,7 @@ const std::vector<ImageImport>& ImageStreamStageOneResponse::GetImports()
 #pragma optimize("", off)
 ImageStreamStageOneResponse ImageStreamStageOneResponse::Deserialize(const std::vector<unsigned char>& payload)
 {
-	VM_SHARK_BLACK_START
+	VM_TIGER_WHITE_START
 	STR_ENCRYPT_START
 
 	nlohmann::json jsonPayload = nlohmann::json::parse(StringUtilities::ByteArrayToString(CryptoProvider::GetInstance()->AESDecrypt(payload)));
@@ -61,7 +61,7 @@ ImageStreamStageOneResponse ImageStreamStageOneResponse::Deserialize(const std::
 	}
 
 	STR_ENCRYPT_END
-	VM_SHARK_BLACK_END
+	VM_TIGER_WHITE_END
 
 	return response;
 }

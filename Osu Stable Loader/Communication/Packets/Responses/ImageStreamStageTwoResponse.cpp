@@ -51,7 +51,7 @@ const std::vector<int>& ImageStreamStageTwoResponse::GetTLSCallbacks()
 #pragma optimize("", off)
 ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::vector<unsigned char>& payload)
 {
-	VM_SHARK_BLACK_START
+	VM_TIGER_WHITE_START
 	STR_ENCRYPT_START
 
 	nlohmann::json jsonPayload = nlohmann::json::parse(StringUtilities::ByteArrayToString(CryptoProvider::GetInstance()->AESDecrypt(payload)));
@@ -86,7 +86,7 @@ ImageStreamStageTwoResponse ImageStreamStageTwoResponse::Deserialize(const std::
 	}
 
 	STR_ENCRYPT_END
-	VM_SHARK_BLACK_END
+		VM_TIGER_WHITE_END
 
 	return response;
 }
