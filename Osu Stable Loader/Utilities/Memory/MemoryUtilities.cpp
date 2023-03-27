@@ -259,15 +259,22 @@ HMODULE MemoryUtilities::RemoteLoadLibraryA(HANDLE processHandle, const char* li
 
 int MemoryUtilities::GetRemoteProcAddress(HANDLE processHandle, const char* moduleName, const char* procName)
 {
-    HMODULE localKernel = GetModuleHandleA(xorstr_("Kernel32.dll"));
-    if (!localKernel)
-        return NULL;
+    if (CachedLocalKernel == nullptr) {
+        HMODULE localKernel = GetModuleHandleA(xorstr_("Kernel32.dll"));
+        if (!localKernel)
+            return NULL;
+        CachedLocalKernel = localKernel;
+    }
 	
-    HMODULE remoteKernel = GetRemoteModuleHandleA(processHandle, xorstr_("Kernel32.dll"));
-    if (!remoteKernel)
-        return NULL;
-	
-    const int remoteGetProcAddress = reinterpret_cast<int>(remoteKernel) + reinterpret_cast<int>(GetProcAddress) - reinterpret_cast<int>(localKernel);
+    if (CachedRemoveKernel == nullptr)
+    {
+        HMODULE remoteKernel = GetRemoteModuleHandleA(processHandle, xorstr_("Kernel32.dll"));
+        if (!remoteKernel)
+            return NULL;
+        CachedRemoveKernel = remoteKernel;
+    }
+
+    const int remoteGetProcAddress = reinterpret_cast<int>(CachedRemoveKernel) + reinterpret_cast<int>(GetProcAddress) - reinterpret_cast<int>(CachedLocalKernel);
 	
     void* remoteProcName = nullptr;
     char* p;

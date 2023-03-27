@@ -14,6 +14,9 @@ class MemoryUtilities
 public:
     static inline MilkThread* MilkThread = nullptr;
 
+    static inline HMODULE CachedLocalKernel = nullptr;
+    static inline HMODULE CachedRemoveKernel = nullptr;
+
 	static __forceinline void AdjustPrivileges()
 	{
         HANDLE token;
