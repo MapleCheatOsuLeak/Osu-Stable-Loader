@@ -36,6 +36,7 @@ public:
     static std::vector<char> IntToByteArray(int value);
     static int CallRemoteFunction(HANDLE processHandle, int functionAddress, std::vector<int> arguments);
     static int CallRemoteFunctionThiscall(HANDLE processHandle, int functionAddress, int instance, std::vector<int> arguments);
+    static int CallRemoteFunctionFastcall(HANDLE processHandle, int functionAddress, std::vector<int> arguments);
 	static DWORD GetProcessIDByName(const char* processName);
 	static HMODULE GetRemoteModuleHandleA(HANDLE processHandle, const char* moduleName);
 	static HMODULE RemoteLoadLibraryA(HANDLE processHandle, const char* libraryPath);

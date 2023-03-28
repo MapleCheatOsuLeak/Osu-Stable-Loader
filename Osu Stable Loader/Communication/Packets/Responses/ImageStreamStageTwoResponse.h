@@ -16,15 +16,19 @@ class ImageStreamStageTwoResponse
 {
 	ImageStreamStageTwoResult result;
 	int ldrpHandleTlsDataOffset;
+	int ldrpInvertedFunctionTablesOffset;
+	int rtlInsertInvertedFunctionTableOffset;
 	int entryPointOffset;
 	std::vector<unsigned char> headers;
 	std::vector<ImageSection> sections;
 	std::vector<int> tlsCallbacks;
 
-	ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, int ldrpHandleTlsDataOffset, int entryPointOffset, const std::vector<unsigned char>& headers, const std::vector<ImageSection>& sections, const std::vector<int>& tlsCallbacks);
+	ImageStreamStageTwoResponse(ImageStreamStageTwoResult result, int ldrpHandleTlsDataOffset, int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset, int entryPointOffset, const std::vector<unsigned char>& headers, const std::vector<ImageSection>& sections, const std::vector<int>& tlsCallbacks);
 public:
 	ImageStreamStageTwoResult GetResult();
 	int GetLdrpHandleTlsDataOffset();
+	int GetLdrpInvertedFunctionTablesOffset();
+	int GetRtlInsertInvertedFunctionTableOffset();
 	int GetEntryPointOffset();
 	const std::vector<unsigned char>& GetHeaders();
 	const std::vector<ImageSection>& GetSections();

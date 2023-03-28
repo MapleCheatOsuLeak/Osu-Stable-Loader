@@ -117,6 +117,8 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 			}
 			
 			int ldrpHandleTlsDataOffset = imageStreamStageTwoResponse.GetLdrpHandleTlsDataOffset();
+			int ldrpInvertedFunctionTablesOffset = imageStreamStageTwoResponse.GetLdrpInvertedFunctionTablesOffset();
+			int rtlInsertInvertedFunctionTableOffset = imageStreamStageTwoResponse.GetRtlInsertInvertedFunctionTableOffset();
 			int entryPointOffset = imageStreamStageTwoResponse.GetEntryPointOffset();
 			std::vector<unsigned char> headers = imageStreamStageTwoResponse.GetHeaders();
 
@@ -136,7 +138,7 @@ void Communication::onReceive(const std::vector<unsigned char>& data)
 					callback = callback ^ xorIntRNG(gen);
 			}
 
-			ImageMapper::MapImage(ldrpHandleTlsDataOffset, entryPointOffset, headers, sections, tlsCallbacks);
+			ImageMapper::MapImage(ldrpHandleTlsDataOffset, ldrpInvertedFunctionTablesOffset, rtlInsertInvertedFunctionTableOffset, entryPointOffset, headers, sections, tlsCallbacks);
 
 			Disconnect();
 
