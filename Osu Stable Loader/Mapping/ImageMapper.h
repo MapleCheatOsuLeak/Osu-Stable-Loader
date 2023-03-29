@@ -41,14 +41,15 @@ class ImageMapper
 {
 	static inline HANDLE processHandle;
 	static inline void* imageBaseAddress;
+	static inline int imageSize;
 	static inline unsigned int sizeOfHeaders;
 
 	static void mapHeaders(const std::vector<unsigned char>& headers);
 	static void unmapHeaders();
 	static void mapSections(const std::vector<ImageSection>& imageSections);
 	static void fixStaticTLS(int ldrpHandleTlsDataOffset);
-    static InsertInvertedFunctionTableResult insertInvertedFunctionTable(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset, std::vector<unsigned char> headers);
-	static void enableExceptions(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset, std::vector<unsigned char> headers);
+    static InsertInvertedFunctionTableResult insertInvertedFunctionTable(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset);
+	static void enableExceptions(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset);
 	static void callInitializationRoutines(int entryPointOffset, const std::vector<int>& tlsCallbacks);
 public:
 	static void Initialize(HANDLE processHandle);

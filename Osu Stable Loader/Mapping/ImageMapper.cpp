@@ -48,17 +48,11 @@ void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 	MemoryUtilities::CallRemoteFunctionThiscall(processHandle, ldrpHandleTlsData, (int)dataTableEntryAddress, {});
 }
 
-InsertInvertedFunctionTableResult ImageMapper::insertInvertedFunctionTable(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset, std::vector<unsigned char> headers)
+InsertInvertedFunctionTableResult ImageMapper::insertInvertedFunctionTable(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset)
 {
 	int ldrpInvertedFunctionTables = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpInvertedFunctionTablesOffset;
 
 	int rtlInsertInvertedFunctionTable = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + rtlInsertInvertedFunctionTableOffset;
-
-	// Read PE Header
-	PIMAGE_DOS_HEADER dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(headers.data());
-	if (dosHeader->e_magic != 0x5a4d)
-		return InsertInvertedFunctionTableResult::Failed;
-	PIMAGE_NT_HEADERS32 ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS32>(headers.data() + dosHeader->e_lfanew);
 
 	auto table = _RTL_INVERTED_FUNCTION_TABLE8<DWORD>();
 	ReadProcessMemory(processHandle, reinterpret_cast<LPCVOID>(ldrpInvertedFunctionTables), &table, sizeof(_RTL_INVERTED_FUNCTION_TABLE8<DWORD>), NULL);
@@ -66,7 +60,7 @@ InsertInvertedFunctionTableResult ImageMapper::insertInvertedFunctionTable(int l
 		if (table.Entries[i].ImageBase == reinterpret_cast<DWORD>(imageBaseAddress))
 			return InsertInvertedFunctionTableResult::Success;
 
-	MemoryUtilities::CallRemoteFunctionFastcall(processHandle, rtlInsertInvertedFunctionTable, { reinterpret_cast<int>(imageBaseAddress), static_cast<int>(ntHeaders->OptionalHeader.SizeOfImage) });
+	MemoryUtilities::CallRemoteFunctionFastcall(processHandle, rtlInsertInvertedFunctionTable, { reinterpret_cast<int>(imageBaseAddress), imageSize });
 	ReadProcessMemory(processHandle, reinterpret_cast<LPCVOID>(ldrpInvertedFunctionTables), &table, sizeof(_RTL_INVERTED_FUNCTION_TABLE8<DWORD>), NULL);
 
 	for (size_t i = 0; i < table.Count; i++)
@@ -102,21 +96,24 @@ InsertInvertedFunctionTableResult ImageMapper::insertInvertedFunctionTable(int l
 
 		return InsertInvertedFunctionTableResult::Success;
 	}
+
 	return InsertInvertedFunctionTableResult::Failed;
 }
 
 // TODO: this only works for x86
-void ImageMapper::enableExceptions(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset, std::vector<unsigned char> headers)
+void ImageMapper::enableExceptions(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset)
 {
-	auto status = insertInvertedFunctionTable(ldrpInvertedFunctionTablesOffset, rtlInsertInvertedFunctionTableOffset, headers);
+	auto status = insertInvertedFunctionTable(ldrpInvertedFunctionTablesOffset, rtlInsertInvertedFunctionTableOffset);
 
 	if (status == InsertInvertedFunctionTableResult::Failed)
 		return;
+
 	if (status == InsertInvertedFunctionTableResult::SuccessWithSEH)
 	{
 		//printf("  [~] success with safeseh\n");
 		return;
 	}
+
 	// TODO: implement setting up VEH
 }
 
@@ -151,6 +148,7 @@ int ImageMapper::AllocateMemoryForImage(int imageSize)
 	VM_SHARK_BLACK_START
 
 	imageBaseAddress = VirtualAllocEx(processHandle, NULL, imageSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	ImageMapper::imageSize = imageSize;
 
 	VM_SHARK_BLACK_END
 
@@ -182,13 +180,10 @@ void ImageMapper::MapImage(int ldrpHandleTlsDataOffset, int ldrpInvertedFunction
 {
 	VM_FISH_RED_START
 
-	// copying away constness
-	auto nonConstHeaders = std::vector<unsigned char>(headers);
-
 	mapHeaders(headers);
 	mapSections(imageSections);
 	fixStaticTLS(ldrpHandleTlsDataOffset);
-	enableExceptions(ldrpInvertedFunctionTablesOffset, rtlInsertInvertedFunctionTableOffset, nonConstHeaders);
+	enableExceptions(ldrpInvertedFunctionTablesOffset, rtlInsertInvertedFunctionTableOffset);
 	callInitializationRoutines(entryPointOffset, tlsCallbacks);
 	unmapHeaders();
 
