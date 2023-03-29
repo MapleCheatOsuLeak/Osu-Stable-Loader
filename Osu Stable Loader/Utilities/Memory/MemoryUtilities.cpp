@@ -197,19 +197,21 @@ int MemoryUtilities::CallRemoteFunctionFastcall(HANDLE processHandle, int functi
             std::vector<char> bytes2 = IntToByteArray(arguments[i]);
             shellcode.insert(shellcode.end(), bytes2.begin(), bytes2.end());
         }
-
-        if (arguments[i] >= -128 && arguments[i] <= 127)
-        {
-            // push byte
-            shellcode.push_back(0x6A);
-            shellcode.push_back(static_cast<char>(arguments[i]));
-        }
         else
         {
-            // push dword
-            shellcode.push_back(0x68);
-            std::vector<char> bytes = IntToByteArray(arguments[i]);
-            shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+            if (arguments[i] >= -128 && arguments[i] <= 127)
+            {
+                // push byte
+                shellcode.push_back(0x6A);
+                shellcode.push_back(static_cast<char>(arguments[i]));
+            }
+            else
+            {
+                // push dword
+                shellcode.push_back(0x68);
+                std::vector<char> bytes = IntToByteArray(arguments[i]);
+                shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+            }
         }
     }
 
