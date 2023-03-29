@@ -180,34 +180,38 @@ int MemoryUtilities::CallRemoteFunctionFastcall(HANDLE processHandle, int functi
 {
     std::vector<char> shellcode;
 
-    // TODO: MAPLE PLEASSSEEE HELP I CANT BE ARSED ITS SO FUCKING LATE LOOOOOOOOOOOOAWDOAWDAOWDLAKSGAKSGL
+    // push arguments (push arg | mov ecx, arg | mov edx, arg)
+    for (int i = arguments.size() - 1; i >= 0; i--)
+    {
+        if (i == 0)
+        {
+            // mov ecx, arguments[0]
+            shellcode.push_back(0xB9);
+            std::vector<char> bytes = IntToByteArray(arguments[i]);
+            shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+        }
+        else if (i == 1)
+        {
+            // mov edx, arguments[1]
+            shellcode.push_back(0xBA);
+            std::vector<char> bytes2 = IntToByteArray(arguments[i]);
+            shellcode.insert(shellcode.end(), bytes2.begin(), bytes2.end());
+        }
 
-    // mov ecx, arguments[0]
-    shellcode.push_back(0xB9);
-    std::vector<char> bytes = IntToByteArray(arguments[0]);
-    shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
-    // mov edx, arguments[0]
-    shellcode.push_back(0xBA);
-    std::vector<char> bytes2 = IntToByteArray(arguments[1]);
-    shellcode.insert(shellcode.end(), bytes2.begin(), bytes2.end());
-
-    //// push arguments (push arg)
-    //for (int i = arguments.size() - 1; i >= 0; i--)
-    //{
-    //    if (arguments[i] >= -128 && arguments[i] <= 127)
-    //    {
-    //        // push byte
-    //        shellcode.push_back(0x6A);
-    //        shellcode.push_back(static_cast<char>(arguments[i]));
-    //    }
-    //    else
-    //    {
-    //        // push dword
-    //        shellcode.push_back(0x68);
-    //        std::vector<char> bytes = IntToByteArray(arguments[i]);
-    //        shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
-    //    }
-    //}
+        if (arguments[i] >= -128 && arguments[i] <= 127)
+        {
+            // push byte
+            shellcode.push_back(0x6A);
+            shellcode.push_back(static_cast<char>(arguments[i]));
+        }
+        else
+        {
+            // push dword
+            shellcode.push_back(0x68);
+            std::vector<char> bytes = IntToByteArray(arguments[i]);
+            shellcode.insert(shellcode.end(), bytes.begin(), bytes.end());
+        }
+    }
 
     // move function address to eax (mov eax, functionAddress)
     std::vector<char> functionAddressBytes = IntToByteArray(functionAddress);
