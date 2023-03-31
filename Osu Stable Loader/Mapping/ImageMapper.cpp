@@ -6,6 +6,8 @@
 #include "../Utilities/Memory/MemoryUtilities.h"
 #include "../UserData/UserDataManager.h"
 
+#include "../Utilities/Security/xorstr.hpp"
+
 #pragma optimize("", off)
 void ImageMapper::mapHeaders(const std::vector<unsigned char>& headers)
 {
@@ -36,7 +38,7 @@ void ImageMapper::mapSections(const std::vector<ImageSection>& imageSections)
 
 void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 {
-	int ldrpHandleTlsData = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpHandleTlsDataOffset;
+	int ldrpHandleTlsData = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, xorstr_("ntdll.dll"))) + ldrpHandleTlsDataOffset;
 	
 	LDR_DATA_TABLE_ENTRY dataTableEntry;
 	memset(&dataTableEntry, 0, sizeof(dataTableEntry));
@@ -50,9 +52,9 @@ void ImageMapper::fixStaticTLS(int ldrpHandleTlsDataOffset)
 
 InsertInvertedFunctionTableResult ImageMapper::insertInvertedFunctionTable(int ldrpInvertedFunctionTablesOffset, int rtlInsertInvertedFunctionTableOffset)
 {
-	int ldrpInvertedFunctionTables = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + ldrpInvertedFunctionTablesOffset;
+	int ldrpInvertedFunctionTables = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, xorstr_("ntdll.dll"))) + ldrpInvertedFunctionTablesOffset;
 
-	int rtlInsertInvertedFunctionTable = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, "ntdll.dll")) + rtlInsertInvertedFunctionTableOffset;
+	int rtlInsertInvertedFunctionTable = reinterpret_cast<uintptr_t>(MemoryUtilities::GetRemoteModuleHandleA(processHandle, xorstr_("ntdll.dll"))) + rtlInsertInvertedFunctionTableOffset;
 
 	auto table = _RTL_INVERTED_FUNCTION_TABLE8<DWORD>();
 	ReadProcessMemory(processHandle, reinterpret_cast<LPCVOID>(ldrpInvertedFunctionTables), &table, sizeof(_RTL_INVERTED_FUNCTION_TABLE8<DWORD>), NULL);
