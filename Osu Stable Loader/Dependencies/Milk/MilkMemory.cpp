@@ -77,9 +77,8 @@ void MilkMemory::cacheMemoryRegions()
 	VM_MUTATE_ONLY_END
 }
 
-std::vector<uint8_t> MilkMemory::ReadMemory(uint32_t startAddress, SIZE_T size)
+__forceinline std::vector<uint8_t> MilkMemory::ReadMemory(uint32_t startAddress, SIZE_T size)
 {
-	VM_MUTATE_ONLY_START
 	auto buffer = std::vector<uint8_t>(size);
 	const auto address = reinterpret_cast<uint8_t*>(startAddress);
 	SIZE_T readBytes;
@@ -88,7 +87,6 @@ std::vector<uint8_t> MilkMemory::ReadMemory(uint32_t startAddress, SIZE_T size)
 		return { };
 
 	return buffer;
-	VM_MUTATE_ONLY_END
 }
 
 std::vector<MemoryRegion>* MilkMemory::GetMemoryRegions()
